@@ -4,9 +4,10 @@ This is your comprehensive guide for working with Convex in Svelte/SvelteKit pro
 
 ## Overview
 
-You have access to two powerful MCP servers:
+You have access to three powerful MCP servers:
 1. **Convex MCP Server** - For interacting with Convex deployments
 2. **Svelte MCP Server** - For accessing Svelte 5 and SvelteKit documentation
+3. **Bits UI Documentation** - For headless component primitives (fetch on demand)
 
 ## Priority Rules
 
@@ -15,6 +16,7 @@ You have access to two powerful MCP servers:
 2. **Always use Convex MCP tools** over command-line tools where possible
 3. **Follow Svelte 5 runes and reactive patterns** when writing frontend code
 4. **Use proper validators and TypeScript types** in Convex backend functions
+5. **Use Bits UI for headless components** - fetch docs on demand when building UI
 
 ---
 
@@ -847,6 +849,173 @@ mcp_svelte_playground_link({
 
 ---
 
+## Bits UI Documentation
+
+### What is Bits UI?
+
+Bits UI is a headless component library for Svelte that provides accessible, unstyled component primitives. It's perfect for building custom UI components with full control over styling while maintaining accessibility and behavior.
+
+**Key characteristics:**
+- **Headless**: No styling included - bring your own styles (Tailwind, CSS, etc.)
+- **Accessible**: Built-in ARIA attributes and keyboard navigation
+- **Composable**: Build complex components from simple primitives
+- **Type-safe**: Full TypeScript support
+
+### When to Use Bits UI
+
+Use Bits UI when building:
+- **Interactive components**: Dropdowns, dialogs, popovers, tooltips
+- **Form controls**: Select menus, comboboxes, radio groups, checkboxes
+- **Navigation**: Tabs, accordions, collapsible sections
+- **Data display**: Tables, pagination, calendars
+- **Complex UI patterns**: Command palettes, context menus, sliders
+
+### Accessing Documentation
+
+**IMPORTANT**: Bits UI documentation follows the [llms.txt standard](https://llmstxt.org/), making it optimized for LLMs to parse and understand.
+
+#### Fetch Documentation On Demand
+
+When a user needs Bits UI components, fetch the relevant documentation using the `fetch` or `agentic_fetch` tool:
+
+**For specific components:**
+```
+https://bits-ui.com/docs/components/[component-name]/llms.txt
+```
+
+**For complete documentation:**
+```
+https://bits-ui.com/docs/llms.txt
+```
+
+**For documentation index:**
+```
+https://bits-ui.com/llms.txt
+```
+
+#### Common Components
+
+| Component | URL | Use Case |
+|-----------|-----|----------|
+| Accordion | `https://bits-ui.com/docs/components/accordion/llms.txt` | Collapsible sections |
+| Button | `https://bits-ui.com/docs/components/button/llms.txt` | Accessible buttons |
+| Checkbox | `https://bits-ui.com/docs/components/checkbox/llms.txt` | Checkbox inputs |
+| Combobox | `https://bits-ui.com/docs/components/combobox/llms.txt` | Searchable select |
+| Dialog | `https://bits-ui.com/docs/components/dialog/llms.txt` | Modal dialogs |
+| Dropdown Menu | `https://bits-ui.com/docs/components/dropdown-menu/llms.txt` | Context menus |
+| Popover | `https://bits-ui.com/docs/components/popover/llms.txt` | Floating content |
+| Select | `https://bits-ui.com/docs/components/select/llms.txt` | Select menus |
+| Tabs | `https://bits-ui.com/docs/components/tabs/llms.txt` | Tab navigation |
+| Tooltip | `https://bits-ui.com/docs/components/tooltip/llms.txt` | Hover tooltips |
+
+See full list at: https://bits-ui.com/llms.txt
+
+### Workflow: Using Bits UI
+
+1. **Identify component need**
+   - User asks for dropdown, dialog, etc.
+
+2. **Fetch relevant documentation**
+   ```typescript
+   // Use fetch or agentic_fetch tool
+   fetch("https://bits-ui.com/docs/components/dialog/llms.txt", "text")
+   ```
+
+3. **Read the documentation**
+   - Understand component API
+   - Note required props and structure
+   - Review accessibility features
+
+4. **Implement component**
+   - Use Bits UI primitives as building blocks
+   - Add custom styling (Tailwind, CSS, etc.)
+   - Follow Svelte 5 runes patterns
+
+5. **Validate with autofixer**
+   - Run `mcp_svelte_svelte-autofixer`
+   - Apply any suggestions
+
+### Example: Building a Dialog
+
+```svelte
+<script lang="ts">
+  import { Dialog } from 'bits-ui';
+  
+  let open = $state(false);
+</script>
+
+<Dialog.Root bind:open>
+  <Dialog.Trigger class="btn">Open Dialog</Dialog.Trigger>
+  <Dialog.Portal>
+    <Dialog.Overlay class="fixed inset-0 bg-black/50" />
+    <Dialog.Content class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg">
+      <Dialog.Title class="text-xl font-bold">Dialog Title</Dialog.Title>
+      <Dialog.Description class="text-gray-600 mt-2">
+        Dialog description goes here.
+      </Dialog.Description>
+      <Dialog.Close class="btn mt-4">Close</Dialog.Close>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
+```
+
+### Integration with Convex
+
+Bits UI components work seamlessly with Convex data:
+
+```svelte
+<script lang="ts">
+  import { useQuery, useConvexClient } from 'convex-svelte';
+  import { Select } from 'bits-ui';
+  import { api } from '$lib/convex/_generated/api.js';
+  
+  const client = useConvexClient();
+  const users = useQuery(api.users.list, () => ({}));
+  
+  let selectedUserId = $state<string>('');
+  
+  async function assignUser() {
+    await client.mutation(api.tasks.assign, {
+      userId: selectedUserId
+    });
+  }
+</script>
+
+<Select.Root bind:value={selectedUserId}>
+  <Select.Trigger>
+    <Select.Value placeholder="Select user..." />
+  </Select.Trigger>
+  <Select.Content>
+    {#if users.isLoading}
+      <Select.Item value="" disabled>Loading...</Select.Item>
+    {:else if users.data}
+      {#each users.data as user}
+        <Select.Item value={user._id}>{user.name}</Select.Item>
+      {/each}
+    {/if}
+  </Select.Content>
+</Select.Root>
+
+<button onclick={assignUser}>Assign</button>
+```
+
+### Best Practices
+
+1. **Fetch docs when needed** - Don't assume component API, always fetch latest docs
+2. **Follow accessibility patterns** - Bits UI handles ARIA, don't override unnecessarily  
+3. **Style consistently** - Use same styling approach across all components (Tailwind, CSS modules, etc.)
+4. **Leverage composition** - Combine Bits UI primitives to build complex patterns
+5. **Test interactions** - Verify keyboard navigation and screen reader support
+
+### Notes
+
+- Not all Bits UI pages support `/llms.txt` (e.g., Figma page is excluded)
+- Check https://bits-ui.com/llms.txt for up-to-date list of available endpoints
+- The "Copy Markdown" button on each doc page provides same content as `/llms.txt`
+- Always prefer fetching docs over guessing component APIs
+
+---
+
 ## Common Workflows
 
 ### Workflow 1: Build Svelte + Convex Feature
@@ -854,6 +1023,7 @@ mcp_svelte_playground_link({
 1. **Understand requirements**
    - Call `mcp_svelte_list-sections` to find relevant Svelte docs
    - Call `mcp_svelte_get-documentation` with all relevant sections
+   - If building UI components, fetch Bits UI docs for needed components
 
 2. **Inspect Convex deployment**
    - Call `mcp_convex_status` to get deployment selector
@@ -869,6 +1039,7 @@ mcp_svelte_playground_link({
    - Use `convex-svelte` patterns
    - Use `useQuery` for data
    - Use `useConvexClient()` for mutations/actions
+   - Use Bits UI for interactive components (dialogs, dropdowns, etc.)
    - Follow Svelte 5 runes ($state, $derived, etc.)
 
 5. **Validate Svelte code**
@@ -958,6 +1129,14 @@ mcp_svelte_playground_link({
 3. **Use snippets** instead of slots where appropriate
 4. **Prefer fine-grained reactivity** over stores
 5. **Validate with autofixer** before finalizing code
+
+### Bits UI Patterns
+
+1. **Fetch documentation first** - Always get latest component API from bits-ui.com/llms.txt
+2. **Use composition** - Combine Root, Trigger, Content, etc. primitives
+3. **Bind state reactively** - Use `bind:open`, `bind:value` with Svelte 5 runes
+4. **Style with utility classes** - Tailwind works great with Bits UI
+5. **Preserve accessibility** - Don't override ARIA attributes unless necessary
 
 ### MCP Tool Usage
 
@@ -1120,5 +1299,6 @@ v.literal("value") // "value"
 - **Use Svelte 5 runes** - $state, $derived, $effect, $props
 - **Define validators for all Convex functions** - both args and returns
 - **Use indexes in queries** - avoid filters for performance
+- **Fetch Bits UI docs on demand** - don't assume component APIs, always get latest from bits-ui.com/llms.txt
 
-This is your complete reference for working with Convex + Svelte projects.
+This is your complete reference for working with Convex + Svelte + Bits UI projects.
