@@ -4,10 +4,12 @@ This is your comprehensive guide for working with Convex in Svelte/SvelteKit pro
 
 ## Overview
 
-You have access to three powerful MCP servers:
+You have access to two powerful MCP servers:
 1. **Convex MCP Server** - For interacting with Convex deployments
 2. **Svelte MCP Server** - For accessing Svelte 5 and SvelteKit documentation
-3. **Bits UI Documentation** - For headless component primitives (fetch on demand)
+
+You also have access to:
+- **Bits UI Documentation** - Headless component library docs available via fetch (llms.txt standard)
 
 ## Priority Rules
 
