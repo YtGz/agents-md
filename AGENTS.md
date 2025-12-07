@@ -65,7 +65,23 @@ Create or update `convex.json` in the project root with the following content:
 
 This places Convex functions inside the `src/` directory for better organization with SvelteKit.
 
-### Step 4: Configure Bun Runtime for Vite
+### Step 4: Configure SvelteKit Alias
+
+Add an alias for the Convex directory in `svelte.config.js`:
+
+```js
+const config = {
+  kit: {
+    alias: {
+      '$convex': 'src/convex'
+    }
+  }
+};
+```
+
+This allows importing from `$convex` instead of relative paths (e.g., `import { api } from '$convex/_generated/api'`).
+
+### Step 5: Configure Bun Runtime for Vite
 
 Update the `package.json` scripts to use Bun's runtime instead of Node.js for better performance:
 
@@ -81,7 +97,7 @@ Update the `package.json` scripts to use Bun's runtime instead of Node.js for be
 
 **Note:** Only replace the `dev`, `build`, and `preview` scripts. Keep other scripts (like `check`, `lint`, `test`, etc.) unchanged.
 
-### Step 5: Configure Prettier
+### Step 6: Configure Prettier
 
 Update `.prettierrc` to use spaces instead of tabs and set the print width:
 
@@ -99,7 +115,7 @@ Add `AGENTS.md` to `.prettierignore` to prevent formatting issues with the docum
 AGENTS.md
 ```
 
-### Step 6: Set Initial Version
+### Step 7: Set Initial Version
 
 Update the `version` field in `package.json` to follow proper [Semantic Versioning](https://semver.org/):
 
@@ -111,7 +127,7 @@ Update the `version` field in `package.json` to follow proper [Semantic Versioni
 
 This sets the initial development version. Use `0.x.x` versions during initial development, then move to `1.0.0` for the first stable release.
 
-### Step 7: Update Dependencies
+### Step 8: Update Dependencies
 
 Update all packages to their latest versions:
 
@@ -121,7 +137,7 @@ bun update --latest
 
 This ensures you're starting with the most recent stable versions of all dependencies.
 
-### Step 8: Gather Project Requirements
+### Step 9: Gather Project Requirements
 
 **IMPORTANT:** Before proceeding, ask the user what they intend to build. Gather enough information to understand:
 - The purpose and core functionality of the application
@@ -130,7 +146,7 @@ This ensures you're starting with the most recent stable versions of all depende
 - Any specific technical requirements
 - **Whether the repository should be public or private**
 
-### Step 9: Create GitHub Repository
+### Step 10: Create GitHub Repository
 
 Based on the user's description, create a sophisticated project title and description. Then:
 
@@ -139,7 +155,7 @@ Based on the user's description, create a sophisticated project title and descri
 3. Initialize git in the project folder if not already done
 4. Add the remote origin
 
-### Step 10: Create README.md
+### Step 11: Create README.md
 
 Create a `README.md` file that includes:
 - Project title and description
@@ -148,7 +164,7 @@ Create a `README.md` file that includes:
 - Development commands
 - Project structure overview
 
-### Step 11: Add LICENSE.md (if missing)
+### Step 12: Add LICENSE.md (if missing)
 
 If no license file exists in the project, create a `LICENSE.md` file with the MIT-0 (MIT No Attribution) license:
 
@@ -173,7 +189,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Replace `<YEAR>` with the current year and `<COPYRIGHT HOLDER>` with the appropriate name (ask user if unclear).
 
-### Step 12: Initial Commit
+### Step 13: Initial Commit
 
 First, run formatting and type checking (required since we changed Prettier config):
 
@@ -195,7 +211,7 @@ git commit -m "feat: initialize project with SvelteKit, Convex, and Tailwind CSS
 - Set up Paraglide for internationalization (en, de)"
 ```
 
-### Step 13: Instruct User on Next Steps
+### Step 14: Instruct User on Next Steps
 
 After completing the setup, inform the user:
 
@@ -221,16 +237,17 @@ After completing the setup, inform the user:
 1. bunx sv create . --template minimal --types ts --add eslint --add prettier --add vitest="usages:unit,component" --add tailwindcss="plugins:typography,forms" --add paraglide="languageTags:en,de+demo:no" --no-dir-check --install bun
 2. bun add convex convex-svelte bits-ui
 3. Create/update convex.json with { "functions": "src/convex/" }
-4. Update package.json vite scripts to use "bun run --bun vite ..."
-5. Configure .prettierrc (useTabs: false, printWidth: 80)
-6. Set package.json version to "0.1.0"
-7. bun update --latest
-8. Ask user about project purpose
-9. Create GitHub repo via MCP
-10. Create README.md
-11. Add LICENSE.md (MIT-0) if missing
-12. Initial commit (conventional commits)
-13. Tell user to run "bun run convex dev" and "bun run dev --host" in separate terminals
+4. Add $convex alias to svelte.config.js
+5. Update package.json vite scripts to use "bun run --bun vite ..."
+6. Configure .prettierrc (useTabs: false, printWidth: 80)
+7. Set package.json version to "0.1.0"
+8. bun update --latest
+9. Ask user about project purpose
+10. Create GitHub repo via MCP
+11. Create README.md
+12. Add LICENSE.md (MIT-0) if missing
+13. Initial commit (conventional commits)
+14. Tell user to run "bun run convex dev" and "bun run dev --host" in separate terminals
 ```
 
 ---
