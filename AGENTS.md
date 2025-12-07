@@ -28,6 +28,8 @@ You also have access to:
 
 ## Project Bootstrap
 
+**IMPORTANT:** You MUST complete ALL bootstrapping steps before creating any application-specific code.
+
 When starting a new project, you will typically be in an empty folder containing only an `AGENTS.md` file (and possibly a `LICENSE.md` file). Follow this workflow to bootstrap the project:
 
 ### Step 1: Initialize SvelteKit Project
