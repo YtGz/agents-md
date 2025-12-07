@@ -21,6 +21,7 @@ You also have access to:
 4. **Use proper validators and TypeScript types** in Convex backend functions
 5. **Use Bits UI for headless components** - fetch docs on demand when building UI
 6. **Always use [Conventional Commits](https://www.conventionalcommits.org/)** for all git commits
+7. **Always run `bun run format` and `bun run check`** before committing
 
 ---
 
@@ -174,7 +175,14 @@ Replace `<YEAR>` with the current year and `<COPYRIGHT HOLDER>` with the appropr
 
 ### Step 12: Initial Commit
 
-Create the first commit following the [Conventional Commits](https://www.conventionalcommits.org/) standard:
+First, run formatting and type checking (required since we changed Prettier config):
+
+```bash
+bun run format
+bun run check
+```
+
+Then create the first commit following the [Conventional Commits](https://www.conventionalcommits.org/) standard:
 
 ```bash
 git add .
