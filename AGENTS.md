@@ -42,12 +42,12 @@ This sets up:
 - **Paraglide** for i18n (English and German)
 - **Bun** as the package manager
 
-### Step 2: Add Convex
+### Step 2: Add Convex and Bits UI
 
-Install Convex and the Svelte integration:
+Install Convex, the Svelte integration, and Bits UI (headless components):
 
 ```bash
-bun add convex convex-svelte
+bun add convex convex-svelte bits-ui
 ```
 
 ### Step 3: Configure Convex Functions Directory
@@ -189,7 +189,7 @@ After completing the setup, inform the user:
 
 ```
 1. bunx sv create . --template minimal --types ts --add eslint --add prettier --add vitest="usages:unit,component" --add tailwindcss="plugins:typography,forms" --add paraglide="languageTags:en,de+demo:no" --no-dir-check --install bun
-2. bun add convex convex-svelte
+2. bun add convex convex-svelte bits-ui
 3. Create/update convex.json with { "functions": "src/convex/" }
 4. Update package.json vite scripts to use "bun run --bun vite ..."
 5. Set package.json version to "0.1.0"
