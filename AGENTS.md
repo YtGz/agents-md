@@ -120,14 +120,16 @@ This ensures you're starting with the most recent stable versions of all depende
 - Target users or audience
 - Key features they want to implement
 - Any specific technical requirements
+- **Whether the repository should be public or private**
 
 ### Step 9: Create GitHub Repository
 
 Based on the user's description, create a sophisticated project title and description. Then:
 
-1. Use the GitHub MCP server to create a new repository with the generated title and description
-2. Initialize git in the project folder if not already done
-3. Add the remote origin
+1. Ask the user whether they want the repository to be **public** or **private**
+2. Use the GitHub MCP server to create a new repository with the generated title, description, and visibility setting
+3. Initialize git in the project folder if not already done
+4. Add the remote origin
 
 ### Step 10: Create README.md
 
