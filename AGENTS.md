@@ -22,6 +22,188 @@ You also have access to:
 
 ---
 
+## Project Bootstrap
+
+When starting a new project, you will typically be in an empty folder containing only an `AGENTS.md` file (and possibly a `LICENSE.md` file). Follow this workflow to bootstrap the project:
+
+### Step 1: Initialize SvelteKit Project
+
+Run the following command to scaffold a SvelteKit app with our standard configuration:
+
+```bash
+bunx sv create . --template minimal --types ts --add eslint --add prettier --add vitest="usages:unit,component" --add tailwindcss="plugins:typography,forms" --add paraglide="languageTags:en,de+demo:no" --no-dir-check --install bun
+```
+
+This sets up:
+- **SvelteKit** with TypeScript
+- **ESLint** and **Prettier** for code quality
+- **Vitest** for unit and component testing
+- **Tailwind CSS** with typography and forms plugins
+- **Paraglide** for i18n (English and German)
+- **Bun** as the package manager
+
+### Step 2: Add Convex
+
+Install Convex and the Svelte integration:
+
+```bash
+bun add convex convex-svelte
+```
+
+### Step 3: Configure Convex Functions Directory
+
+Create or update `convex.json` in the project root with the following content:
+
+```json
+{
+  "functions": "src/convex/"
+}
+```
+
+This places Convex functions inside the `src/` directory for better organization with SvelteKit.
+
+### Step 4: Configure Bun Runtime for Vite
+
+Update the `package.json` scripts to use Bun's runtime instead of Node.js for better performance:
+
+```json
+{
+  "scripts": {
+    "dev": "bun run --bun vite dev",
+    "build": "bun run --bun vite build",
+    "preview": "bun run --bun vite preview"
+  }
+}
+```
+
+**Note:** Only replace the `dev`, `build`, and `preview` scripts. Keep other scripts (like `check`, `lint`, `test`, etc.) unchanged.
+
+### Step 5: Set Initial Version
+
+Update the `version` field in `package.json` to follow proper [Semantic Versioning](https://semver.org/):
+
+```json
+{
+  "version": "0.1.0"
+}
+```
+
+This sets the initial development version. Use `0.x.x` versions during initial development, then move to `1.0.0` for the first stable release.
+
+### Step 6: Update Dependencies
+
+Update all packages to their latest versions:
+
+```bash
+bun update --latest
+```
+
+This ensures you're starting with the most recent stable versions of all dependencies.
+
+### Step 7: Gather Project Requirements
+
+**IMPORTANT:** Before proceeding, ask the user what they intend to build. Gather enough information to understand:
+- The purpose and core functionality of the application
+- Target users or audience
+- Key features they want to implement
+- Any specific technical requirements
+
+### Step 8: Create GitHub Repository
+
+Based on the user's description, create a sophisticated project title and description. Then:
+
+1. Use the GitHub MCP server to create a new repository with the generated title and description
+2. Initialize git in the project folder if not already done
+3. Add the remote origin
+
+### Step 9: Create README.md
+
+Create a `README.md` file that includes:
+- Project title and description
+- Tech stack overview (SvelteKit, Convex, Tailwind CSS, etc.)
+- Setup instructions
+- Development commands
+- Project structure overview
+
+### Step 10: Add LICENSE.md (if missing)
+
+If no license file exists in the project, create a `LICENSE.md` file with the MIT-0 (MIT No Attribution) license:
+
+```markdown
+# MIT No Attribution
+
+Copyright <YEAR> <COPYRIGHT HOLDER>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+Replace `<YEAR>` with the current year and `<COPYRIGHT HOLDER>` with the appropriate name (ask user if unclear).
+
+### Step 11: Initial Commit
+
+Create the first commit following the [Conventional Commits](https://www.conventionalcommits.org/) standard:
+
+```bash
+git add .
+git commit -m "feat: initialize project with SvelteKit, Convex, and Tailwind CSS
+
+- Set up SvelteKit with TypeScript and Bun runtime
+- Configure Convex backend with convex-svelte integration
+- Add Tailwind CSS with typography and forms plugins
+- Configure ESLint, Prettier, and Vitest
+- Set up Paraglide for internationalization (en, de)"
+```
+
+### Step 12: Instruct User on Next Steps
+
+After completing the setup, inform the user:
+
+> **Next Steps:**
+> 
+> Open two new terminal tabs and run the following commands:
+> 
+> **Tab 1 - Convex Dev Server:**
+> ```bash
+> bun run convex dev
+> ```
+> 
+> **Tab 2 - SvelteKit Dev Server:**
+> ```bash
+> bun run dev --host
+> ```
+> 
+> This will start both the Convex backend and the SvelteKit frontend in development mode.
+
+### Bootstrap Workflow Summary
+
+```
+1. bunx sv create . --template minimal --types ts --add eslint --add prettier --add vitest="usages:unit,component" --add tailwindcss="plugins:typography,forms" --add paraglide="languageTags:en,de+demo:no" --no-dir-check --install bun
+2. bun add convex convex-svelte
+3. Create/update convex.json with { "functions": "src/convex/" }
+4. Update package.json vite scripts to use "bun run --bun vite ..."
+5. Set package.json version to "0.1.0"
+6. bun update --latest
+7. Ask user about project purpose
+8. Create GitHub repo via MCP
+9. Create README.md
+10. Add LICENSE.md (MIT-0) if missing
+11. Initial commit (conventional commits)
+12. Tell user to run "bun run convex dev" and "bun run dev --host" in separate terminals
+```
+
+---
+
 ## Convex MCP Server Tools
 
 ### Deployment Tools
