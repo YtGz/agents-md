@@ -80,7 +80,18 @@ Update the `package.json` scripts to use Bun's runtime instead of Node.js for be
 
 **Note:** Only replace the `dev`, `build`, and `preview` scripts. Keep other scripts (like `check`, `lint`, `test`, etc.) unchanged.
 
-### Step 5: Set Initial Version
+### Step 5: Configure Prettier
+
+Update `.prettierrc` to use spaces instead of tabs and set the print width:
+
+```json
+{
+  "useTabs": false,
+  "printWidth": 80
+}
+```
+
+### Step 6: Set Initial Version
 
 Update the `version` field in `package.json` to follow proper [Semantic Versioning](https://semver.org/):
 
@@ -92,7 +103,7 @@ Update the `version` field in `package.json` to follow proper [Semantic Versioni
 
 This sets the initial development version. Use `0.x.x` versions during initial development, then move to `1.0.0` for the first stable release.
 
-### Step 6: Update Dependencies
+### Step 7: Update Dependencies
 
 Update all packages to their latest versions:
 
@@ -102,7 +113,7 @@ bun update --latest
 
 This ensures you're starting with the most recent stable versions of all dependencies.
 
-### Step 7: Gather Project Requirements
+### Step 8: Gather Project Requirements
 
 **IMPORTANT:** Before proceeding, ask the user what they intend to build. Gather enough information to understand:
 - The purpose and core functionality of the application
@@ -110,7 +121,7 @@ This ensures you're starting with the most recent stable versions of all depende
 - Key features they want to implement
 - Any specific technical requirements
 
-### Step 8: Create GitHub Repository
+### Step 9: Create GitHub Repository
 
 Based on the user's description, create a sophisticated project title and description. Then:
 
@@ -118,7 +129,7 @@ Based on the user's description, create a sophisticated project title and descri
 2. Initialize git in the project folder if not already done
 3. Add the remote origin
 
-### Step 9: Create README.md
+### Step 10: Create README.md
 
 Create a `README.md` file that includes:
 - Project title and description
@@ -127,7 +138,7 @@ Create a `README.md` file that includes:
 - Development commands
 - Project structure overview
 
-### Step 10: Add LICENSE.md (if missing)
+### Step 11: Add LICENSE.md (if missing)
 
 If no license file exists in the project, create a `LICENSE.md` file with the MIT-0 (MIT No Attribution) license:
 
@@ -152,7 +163,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Replace `<YEAR>` with the current year and `<COPYRIGHT HOLDER>` with the appropriate name (ask user if unclear).
 
-### Step 11: Initial Commit
+### Step 12: Initial Commit
 
 Create the first commit following the [Conventional Commits](https://www.conventionalcommits.org/) standard:
 
@@ -167,7 +178,7 @@ git commit -m "feat: initialize project with SvelteKit, Convex, and Tailwind CSS
 - Set up Paraglide for internationalization (en, de)"
 ```
 
-### Step 12: Instruct User on Next Steps
+### Step 13: Instruct User on Next Steps
 
 After completing the setup, inform the user:
 
@@ -194,14 +205,15 @@ After completing the setup, inform the user:
 2. bun add convex convex-svelte bits-ui
 3. Create/update convex.json with { "functions": "src/convex/" }
 4. Update package.json vite scripts to use "bun run --bun vite ..."
-5. Set package.json version to "0.1.0"
-6. bun update --latest
-7. Ask user about project purpose
-8. Create GitHub repo via MCP
-9. Create README.md
-10. Add LICENSE.md (MIT-0) if missing
-11. Initial commit (conventional commits)
-12. Tell user to run "bun run convex dev" and "bun run dev --host" in separate terminals
+5. Configure .prettierrc (useTabs: false, printWidth: 80)
+6. Set package.json version to "0.1.0"
+7. bun update --latest
+8. Ask user about project purpose
+9. Create GitHub repo via MCP
+10. Create README.md
+11. Add LICENSE.md (MIT-0) if missing
+12. Initial commit (conventional commits)
+13. Tell user to run "bun run convex dev" and "bun run dev --host" in separate terminals
 ```
 
 ---
