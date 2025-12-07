@@ -1251,6 +1251,224 @@ Bits UI components work seamlessly with Convex data:
 
 ---
 
+## Nano Banana Pro (Image Generation)
+
+Nano Banana Pro provides text-to-image generation capabilities via the Scenario API.
+
+### Model
+
+Use the model ID: `model_google-gemini-pro-image-t2i`
+
+### Environment Variables
+
+Set up the following environment variables in your Convex deployment:
+
+- `SCENARIO_API_KEY` - Your Scenario API key
+- `SCENARIO_API_SECRET` - Your Scenario API secret
+
+### API Endpoint
+
+**Text-to-Image Generation:**
+```
+POST https://api.cloud.scenario.com/v1/generate/txt2img
+```
+
+### Request Parameters
+
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `prompt` | string | **Required.** Textual description of the image to generate. | |
+| `modelId` | string | **Required.** Use `model_google-gemini-pro-image-t2i` | |
+| `negativePrompt` | string | What to avoid in the generated image (not available for Flux models). | |
+| `numSamples` | integer | Number of images to generate. | 1 |
+| `guidance` | number | How closely to follow the prompt. Higher = more faithful. | 7.5 |
+| `numInferenceSteps` | integer | Denoising steps. Higher = better quality but slower. | 30 |
+| `width` | integer | Image width in pixels. | 512 |
+| `height` | integer | Image height in pixels. | 512 |
+| `scheduler` | string | Scheduler for denoising process. | "EulerAncestralDiscrete" |
+| `seed` | integer | Seed for reproducible results. | |
+
+### Implementation in Convex Action
+
+Create a Convex action to generate images:
+
+```typescript
+// src/convex/images.ts
+"use node";
+
+import { action } from "./_generated/server";
+import { v } from "convex/values";
+
+export const generate = action({
+  args: {
+    prompt: v.string(),
+    width: v.optional(v.number()),
+    height: v.optional(v.number()),
+    numSamples: v.optional(v.number()),
+  },
+  returns: v.object({
+    jobId: v.string(),
+    status: v.string(),
+  }),
+  handler: async (ctx, args) => {
+    const apiKey = process.env.SCENARIO_API_KEY;
+    const apiSecret = process.env.SCENARIO_API_SECRET;
+    
+    if (!apiKey || !apiSecret) {
+      throw new Error("Missing Scenario API credentials");
+    }
+    
+    const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
+    
+    const response = await fetch("https://api.cloud.scenario.com/v1/generate/txt2img", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Basic ${credentials}`,
+      },
+      body: JSON.stringify({
+        prompt: args.prompt,
+        modelId: "model_google-gemini-pro-image-t2i",
+        width: args.width ?? 1024,
+        height: args.height ?? 1024,
+        numSamples: args.numSamples ?? 1,
+        guidance: 3.5,
+        numInferenceSteps: 28,
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Image generation failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return {
+      jobId: data.job.jobId,
+      status: data.job.status,
+    };
+  },
+});
+
+export const checkJob = action({
+  args: {
+    jobId: v.string(),
+  },
+  returns: v.object({
+    status: v.string(),
+    assetIds: v.array(v.string()),
+  }),
+  handler: async (ctx, args) => {
+    const apiKey = process.env.SCENARIO_API_KEY;
+    const apiSecret = process.env.SCENARIO_API_SECRET;
+    
+    if (!apiKey || !apiSecret) {
+      throw new Error("Missing Scenario API credentials");
+    }
+    
+    const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
+    
+    const response = await fetch(`https://api.scenario.com/v1/jobs/${args.jobId}`, {
+      headers: {
+        "Authorization": `Basic ${credentials}`,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to check job: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return {
+      status: data.job.status,
+      assetIds: data.job.metadata.assetIds ?? [],
+    };
+  },
+});
+```
+
+### Polling for Results
+
+The image generation is asynchronous. After calling `generate`, poll `checkJob` every 3 seconds until status is `"success"`:
+
+```svelte
+<script lang="ts">
+  import { useConvexClient } from 'convex-svelte';
+  import { api } from '$convex/_generated/api';
+  
+  const client = useConvexClient();
+  
+  let prompt = $state('');
+  let isGenerating = $state(false);
+  let assetIds = $state<string[]>([]);
+  
+  async function generateImage() {
+    isGenerating = true;
+    
+    try {
+      const { jobId } = await client.action(api.images.generate, {
+        prompt,
+        width: 1024,
+        height: 1024,
+      });
+      
+      // Poll for results
+      while (true) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        const result = await client.action(api.images.checkJob, { jobId });
+        
+        if (result.status === 'success') {
+          assetIds = result.assetIds;
+          break;
+        } else if (result.status === 'failure' || result.status === 'canceled') {
+          throw new Error(`Job ${result.status}`);
+        }
+      }
+    } finally {
+      isGenerating = false;
+    }
+  }
+</script>
+
+<input bind:value={prompt} placeholder="Describe your image..." />
+<button onclick={generateImage} disabled={isGenerating}>
+  {isGenerating ? 'Generating...' : 'Generate Image'}
+</button>
+
+{#each assetIds as assetId}
+  <img src={`https://api.scenario.com/v1/assets/${assetId}`} alt="Generated" />
+{/each}
+```
+
+### Response Structure
+
+**Initial Response (job created):**
+```json
+{
+  "job": {
+    "jobId": "job_sDjuCv2SPsURo6b2d8R6TZM8",
+    "status": "queued",
+    "progress": 0
+  },
+  "creativeUnitsCost": 5
+}
+```
+
+**Completed Job Response:**
+```json
+{
+  "job": {
+    "jobId": "job_sDjuCv2SPsURo6b2d8R6TZM8",
+    "status": "success",
+    "metadata": {
+      "assetIds": ["asset_abc123", "asset_def456"]
+    }
+  }
+}
+```
+
+---
+
 ## Common Workflows
 
 ### Workflow 1: Build Svelte + Convex Feature
