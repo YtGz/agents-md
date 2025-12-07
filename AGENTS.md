@@ -4,9 +4,10 @@ This is your comprehensive guide for working with Convex in Svelte/SvelteKit pro
 
 ## Overview
 
-You have access to two powerful MCP servers:
+You have access to three powerful MCP servers:
 1. **Convex MCP Server** - For interacting with Convex deployments
 2. **Svelte MCP Server** - For accessing Svelte 5 and SvelteKit documentation
+3. **GitHub MCP Server** - For repository management, issues, pull requests, and more
 
 You also have access to:
 - **Bits UI Documentation** - Headless component library docs available via fetch (llms.txt standard)
@@ -19,6 +20,7 @@ You also have access to:
 3. **Follow Svelte 5 runes and reactive patterns** when writing frontend code
 4. **Use proper validators and TypeScript types** in Convex backend functions
 5. **Use Bits UI for headless components** - fetch docs on demand when building UI
+6. **Always use [Conventional Commits](https://www.conventionalcommits.org/)** for all git commits
 
 ---
 
