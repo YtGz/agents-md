@@ -28,7 +28,7 @@ You also have access to:
 
 ## Project Bootstrap
 
-**IMPORTANT:** You MUST complete ALL bootstrapping steps before creating any application-specific code.
+**IMPORTANT:** You MUST complete ALL bootstrapping steps before creating any application-specific code. The initial commit contains ONLY the project skeleton/boilerplate. Application-specific code is written AFTER the user has started the dev servers.
 
 When starting a new project, you will typically be in an empty folder containing only an `AGENTS.md` file (and possibly a `LICENSE.md` file). Follow this workflow to bootstrap the project:
 
@@ -194,11 +194,12 @@ Replace `<YEAR>` with the current year and `<COPYRIGHT HOLDER>` with the appropr
 
 ### Step 13: Initial Commit
 
-First, run formatting and type checking (required since we changed Prettier config):
+**Note:** This commit contains ONLY the project boilerplate - no application-specific code yet.
+
+First, run formatting (type checking requires Convex dev server, which will be started after this commit):
 
 ```bash
 bun run format
-bun run check
 ```
 
 Then create the first commit following the [Conventional Commits](https://www.conventionalcommits.org/) standard:
@@ -214,15 +215,17 @@ git commit -m "feat: initialize project with SvelteKit, Convex, and Tailwind CSS
 - Set up Paraglide for internationalization (en, de)"
 ```
 
-### Step 14: Instruct User on Next Steps
+### Step 14: Instruct User and Wait
 
-After completing the setup, inform the user:
+**CRITICAL:** After completing the setup, you MUST inform the user and WAIT for them to start the dev servers before writing any application code.
 
-> **Next Steps:**
+Tell the user:
+
+> **Bootstrap Complete!**
 > 
-> Open two new terminal tabs and run the following commands:
+> Before we start building the application, please open two new terminal tabs and run:
 > 
-> **Tab 1 - Convex Dev Server:**
+> **Tab 1 - Convex Dev Server (required for type generation):**
 > ```bash
 > bun run convex dev
 > ```
@@ -232,7 +235,14 @@ After completing the setup, inform the user:
 > bun run dev --host
 > ```
 > 
-> This will start both the Convex backend and the SvelteKit frontend in development mode.
+> Let me know once both servers are running, and we'll start implementing the application.
+
+**Why this matters:**
+- `bun run convex dev` generates the `_generated/` folder with TypeScript types
+- Without these types, `bun run check` will fail
+- Application code depends on these generated types
+
+**DO NOT proceed with application-specific code until the user confirms the dev servers are running.**
 
 ### Bootstrap Workflow Summary
 
@@ -245,12 +255,12 @@ After completing the setup, inform the user:
 6. Configure .prettierrc (useTabs: false, printWidth: 80)
 7. Set package.json version to "0.1.0"
 8. bun update --latest
-9. Ask user about project purpose
+9. Ask user about project purpose and repo visibility
 10. Create GitHub repo via MCP
 11. Create README.md
 12. Add LICENSE.md (MIT-0) if missing
-13. Initial commit (conventional commits)
-14. Tell user to run "bun run convex dev" and "bun run dev --host" in separate terminals
+13. bun run format && Initial commit (boilerplate only!)
+14. Tell user to start dev servers and WAIT for confirmation before writing app code
 ```
 
 ---
