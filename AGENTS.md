@@ -91,6 +91,13 @@ Update `.prettierrc` to use spaces instead of tabs and set the print width:
 }
 ```
 
+Add `AGENTS.md` to `.prettierignore` to prevent formatting issues with the documentation:
+
+```
+# Documentation
+AGENTS.md
+```
+
 ### Step 6: Set Initial Version
 
 Update the `version` field in `package.json` to follow proper [Semantic Versioning](https://semver.org/):
