@@ -1263,7 +1263,7 @@ Bits UI components work seamlessly with Convex data:
 
 ## Nano Banana Pro (Image Generation)
 
-Nano Banana Pro provides text-to-image generation capabilities via the Scenario API.
+Nano Banana Pro provides text-to-image generation capabilities via the Scenario API custom model endpoint.
 
 ### Model
 
@@ -1278,9 +1278,9 @@ Set up the following environment variables in your Convex deployment:
 
 ### API Endpoint
 
-**Text-to-Image Generation:**
+**Text-to-Image Generation (Custom Model):**
 ```
-POST https://api.cloud.scenario.com/v1/generate/txt2img
+POST https://api.cloud.scenario.com/v1/generate/custom/{modelId}
 ```
 
 ### Request Parameters
@@ -1288,15 +1288,13 @@ POST https://api.cloud.scenario.com/v1/generate/txt2img
 | Parameter | Type | Description | Default |
 |-----------|------|-------------|---------|
 | `prompt` | string | **Required.** Textual description of the image to generate. | |
-| `modelId` | string | **Required.** Use `model_google-gemini-pro-image-t2i` | |
-| `negativePrompt` | string | What to avoid in the generated image (not available for Flux models). | |
-| `numSamples` | integer | Number of images to generate. | 1 |
-| `guidance` | number | How closely to follow the prompt. Higher = more faithful. | 7.5 |
-| `numInferenceSteps` | integer | Denoising steps. Higher = better quality but slower. | 30 |
-| `width` | integer | Image width in pixels. | 512 |
-| `height` | integer | Image height in pixels. | 512 |
-| `scheduler` | string | Scheduler for denoising process. | "EulerAncestralDiscrete" |
-| `seed` | integer | Seed for reproducible results. | |
+| `referenceImages` | assetId[] | Optional reference images (up to 14). | |
+| `aspectRatio` | string | Output aspect ratio. | "auto" |
+| `resolution` | string | Output resolution: "1K", "2K", "4K". | "1K" |
+| `useGoogleSearch` | boolean | Allow model to browse web context. | false |
+| `seed` | number | Seed for reproducibility (0-2147483647). | |
+
+**Aspect Ratio Options:** `21:9`, `16:9`, `3:2`, `4:3`, `5:4`, `1:1`, `4:5`, `3:4`, `2:3`, `9:16`, `auto`
 
 ### Implementation in Convex Action
 
@@ -1312,9 +1310,9 @@ import { v } from "convex/values";
 export const generate = action({
   args: {
     prompt: v.string(),
-    width: v.optional(v.number()),
-    height: v.optional(v.number()),
-    numSamples: v.optional(v.number()),
+    aspectRatio: v.optional(v.string()),
+    resolution: v.optional(v.string()),
+    referenceImages: v.optional(v.array(v.string())),
   },
   returns: v.object({
     jobId: v.string(),
@@ -1330,22 +1328,22 @@ export const generate = action({
     
     const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
     
-    const response = await fetch("https://api.cloud.scenario.com/v1/generate/txt2img", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Basic ${credentials}`,
-      },
-      body: JSON.stringify({
-        prompt: args.prompt,
-        modelId: "model_google-gemini-pro-image-t2i",
-        width: args.width ?? 1024,
-        height: args.height ?? 1024,
-        numSamples: args.numSamples ?? 1,
-        guidance: 3.5,
-        numInferenceSteps: 28,
-      }),
-    });
+    const response = await fetch(
+      "https://api.cloud.scenario.com/v1/generate/custom/model_google-gemini-pro-image-t2i",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${credentials}`,
+        },
+        body: JSON.stringify({
+          prompt: args.prompt,
+          aspectRatio: args.aspectRatio ?? "1:1",
+          resolution: args.resolution ?? "2K",
+          ...(args.referenceImages && { referenceImages: args.referenceImages }),
+        }),
+      }
+    );
     
     if (!response.ok) {
       throw new Error(`Image generation failed: ${response.status}`);
@@ -1417,8 +1415,8 @@ The image generation is asynchronous. After calling `generate`, poll `checkJob` 
     try {
       const { jobId } = await client.action(api.images.generate, {
         prompt,
-        width: 1024,
-        height: 1024,
+        aspectRatio: "1:1",
+        resolution: "2K",
       });
       
       // Poll for results
