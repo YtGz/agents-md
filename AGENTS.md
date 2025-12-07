@@ -1467,6 +1467,148 @@ The image generation is asynchronous. After calling `generate`, poll `checkJob` 
 }
 ```
 
+### Image Editing with Prompts
+
+For editing existing images rather than generating new ones, use the custom endpoint with a reference image.
+
+#### Model for Editing
+
+Use the model ID: `model_google-gemini-pro-image-editing`
+
+#### API Endpoint
+
+```
+POST https://api.cloud.scenario.com/v1/generate/custom/{modelId}
+```
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `referenceImages` | assetId[] | **Required.** Up to 14 reference images to edit. | |
+| `prompt` | string | **Required.** Natural language instruction describing desired edits (max 4096 chars). | |
+| `aspectRatio` | string | Output aspect ratio. | "auto" |
+| `resolution` | string | Output resolution: "1K", "2K", "4K". | "2K" |
+| `seed` | number | Seed for reproducibility (0-2147483647). | |
+
+**Aspect Ratio Options:** `21:9`, `16:9`, `3:2`, `4:3`, `5:4`, `1:1`, `4:5`, `3:4`, `2:3`, `9:16`, `auto`
+
+#### Implementation in Convex Action
+
+```typescript
+// src/convex/images.ts (add to existing file)
+
+export const edit = action({
+  args: {
+    assetIds: v.array(v.string()),
+    prompt: v.string(),
+    aspectRatio: v.optional(v.string()),
+    resolution: v.optional(v.string()),
+  },
+  returns: v.object({
+    jobId: v.string(),
+    status: v.string(),
+  }),
+  handler: async (ctx, args) => {
+    const apiKey = process.env.SCENARIO_API_KEY;
+    const apiSecret = process.env.SCENARIO_API_SECRET;
+    
+    if (!apiKey || !apiSecret) {
+      throw new Error("Missing Scenario API credentials");
+    }
+    
+    const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
+    
+    const response = await fetch(
+      "https://api.cloud.scenario.com/v1/generate/custom/model_google-gemini-pro-image-editing",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${credentials}`,
+        },
+        body: JSON.stringify({
+          referenceImages: args.assetIds,
+          prompt: args.prompt,
+          aspectRatio: args.aspectRatio ?? "auto",
+          resolution: args.resolution ?? "2K",
+        }),
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Image editing failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return {
+      jobId: data.job.jobId,
+      status: data.job.status,
+    };
+  },
+});
+```
+
+#### Svelte Component Example
+
+```svelte
+<script lang="ts">
+  import { useConvexClient } from 'convex-svelte';
+  import { api } from '$convex/_generated/api';
+  
+  const client = useConvexClient();
+  
+  let assetId = $state('');
+  let editPrompt = $state('');
+  let isEditing = $state(false);
+  let editedAssetIds = $state<string[]>([]);
+  
+  async function editImage() {
+    isEditing = true;
+    
+    try {
+      const { jobId } = await client.action(api.images.edit, {
+        assetIds: [assetId],
+        prompt: editPrompt,
+        resolution: "2K",
+      });
+      
+      // Poll for results (reuse checkJob from generate)
+      while (true) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        const result = await client.action(api.images.checkJob, { jobId });
+        
+        if (result.status === 'success') {
+          editedAssetIds = result.assetIds;
+          break;
+        } else if (result.status === 'failure' || result.status === 'canceled') {
+          throw new Error(`Job ${result.status}`);
+        }
+      }
+    } finally {
+      isEditing = false;
+    }
+  }
+</script>
+
+<input bind:value={assetId} placeholder="Asset ID to edit..." />
+<input bind:value={editPrompt} placeholder="Describe the edit..." />
+<button onclick={editImage} disabled={isEditing}>
+  {isEditing ? 'Editing...' : 'Edit Image'}
+</button>
+
+{#each editedAssetIds as id}
+  <img src={`https://api.scenario.com/v1/assets/${id}`} alt="Edited" />
+{/each}
+```
+
+#### Editing Tips
+
+- **Be specific**: Describe exactly what you want to change (e.g., "Change the background to a sunset beach" instead of "Make it look better")
+- **Preserve elements**: Mention what should stay the same (e.g., "Keep the person unchanged, only modify the background")
+- **Use multiple references**: Up to 14 reference images can be provided for complex edits
+
 ---
 
 ## Common Workflows
