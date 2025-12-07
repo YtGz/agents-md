@@ -1897,3 +1897,19 @@ v.literal("value") // "value"
 - **Fetch Bits UI docs on demand** - don't assume component APIs, always get latest from bits-ui.com/llms.txt
 
 This is your complete reference for working with Convex + Svelte + Bits UI projects.
+
+---
+
+## Known Issues
+
+### Bun Lockfile Error on Windows
+
+**Symptom:** Error message "Failed to replace old lockfile with new lockfile on disk" when running Bun commands.
+
+**Cause:** Known Bun bug on Windows when the project is on a drive other than `C:`.
+
+**Solution:** Remove the lockfile and retry:
+```bash
+rm bun.lock
+bun install
+```
