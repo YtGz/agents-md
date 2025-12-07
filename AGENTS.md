@@ -22,6 +22,7 @@ You also have access to:
 5. **Use Bits UI for headless components** - fetch docs on demand when building UI
 6. **Always use [Conventional Commits](https://www.conventionalcommits.org/)** for all git commits
 7. **Always run `bun run format` and `bun run check`** before committing
+8. **Always use the `$convex` alias** when importing from Convex in Svelte/SvelteKit files (e.g., `import { api } from '$convex/_generated/api'`)
 
 ---
 
@@ -442,7 +443,7 @@ In your root layout (`src/routes/+layout.svelte`):
 ```svelte
 <script lang="ts">
   import { useQuery } from 'convex-svelte';
-  import { api } from '../convex/_generated/api.js';
+  import { api } from '$convex/_generated/api';
 
   const messages = useQuery(api.messages.list, () => ({ channelId }));
 </script>
@@ -469,7 +470,7 @@ In your root layout (`src/routes/+layout.svelte`):
 ```svelte
 <script lang="ts">
   import { useConvexClient } from 'convex-svelte';
-  import { api } from '../convex/_generated/api.js';
+  import { api } from '$convex/_generated/api';
 
   const client = useConvexClient();
 
@@ -498,7 +499,7 @@ In your root layout (`src/routes/+layout.svelte`):
 ```svelte
 <script lang="ts">
   import { useConvexClient } from 'convex-svelte';
-  import { api } from '../convex/_generated/api.js';
+  import { api } from '$convex/_generated/api';
 
   const client = useConvexClient();
 
@@ -518,7 +519,7 @@ Return `'skip'` from the arguments function to skip a query:
 ```svelte
 <script lang="ts">
   import { useQuery } from 'convex-svelte';
-  import { api } from '../convex/_generated/api.js';
+  import { api } from '$convex/_generated/api';
 
   let auth = $state({ isAuthenticated: false });
 
@@ -548,7 +549,7 @@ Use `initialData` to avoid loading states:
 ```typescript
 import { ConvexHttpClient } from 'convex/browser';
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
-import { api } from '../convex/_generated/api.js';
+import { api } from '$convex/_generated/api';
 import type { PageServerLoad } from './$types.js';
 
 export const load = (async () => {
@@ -563,7 +564,7 @@ export const load = (async () => {
 ```svelte
 <script lang="ts">
   import { useQuery } from 'convex-svelte';
-  import { api } from '../convex/_generated/api.js';
+  import { api } from '$convex/_generated/api';
   import type { PageData } from './$types.js';
 
   let { data }: { data: PageData } = $props();
@@ -1199,7 +1200,7 @@ Bits UI components work seamlessly with Convex data:
 <script lang="ts">
   import { useQuery, useConvexClient } from 'convex-svelte';
   import { Select } from 'bits-ui';
-  import { api } from '$lib/convex/_generated/api.js';
+  import { api } from '$convex/_generated/api';
   
   const client = useConvexClient();
   const users = useQuery(api.users.list, () => ({}));
