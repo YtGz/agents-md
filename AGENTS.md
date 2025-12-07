@@ -1923,3 +1923,16 @@ This is your complete reference for working with Convex + Svelte + Bits UI proje
 rm bun.lock
 bun install
 ```
+
+### esbuild Error on Windows (bcrypt postinstall)
+
+**Symptom:** esbuild-related error during `bun install`, often related to bcrypt postinstall script (required by Convex).
+
+**Cause:** Corrupted cache from previous failed installations.
+
+**Solution:** Clear the caches and retry:
+```bash
+npx clear-npx-cache
+bun pm cache rm
+bun install
+```
