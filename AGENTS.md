@@ -1375,7 +1375,7 @@ export const checkJob = action({
     
     const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
     
-    const response = await fetch(`https://api.scenario.com/v1/jobs/${args.jobId}`, {
+    const response = await fetch(`https://api.cloud.scenario.com/v1/jobs/${args.jobId}`, {
       headers: {
         "Authorization": `Basic ${credentials}`,
       },
@@ -1392,11 +1392,71 @@ export const checkJob = action({
     };
   },
 });
+
+export const getAssetUrl = action({
+  args: {
+    assetId: v.string(),
+  },
+  returns: v.object({
+    url: v.string(),
+  }),
+  handler: async (ctx, args) => {
+    const apiKey = process.env.SCENARIO_API_KEY;
+    const apiSecret = process.env.SCENARIO_API_SECRET;
+    
+    if (!apiKey || !apiSecret) {
+      throw new Error("Missing Scenario API credentials");
+    }
+    
+    const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
+    
+    const response = await fetch(
+      `https://api.cloud.scenario.com/v1/assets/${args.assetId}`,
+      {
+        headers: {
+          "Authorization": `Basic ${credentials}`,
+        },
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Failed to get asset: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return {
+      url: data.asset.url,
+    };
+  },
+});
+```
+
+### Retrieving Asset URLs
+
+After generation completes, use `getAssetUrl` to retrieve the downloadable URL for each asset:
+
+**API Endpoint:**
+```
+GET https://api.cloud.scenario.com/v1/assets/{assetId}
+```
+
+**Response:**
+```json
+{
+  "asset": {
+    "id": "asset_1gHMbHjSjWYLyAnd7ZxzPkcQ",
+    "url": "https://cdn.scenario.com/assets/asset_1gHMbHjSjWYLyAnd7ZxzPkcQ.png",
+    "createdAt": "2025-07-15T10:00:00Z",
+    "metadata": {
+      "prompt": "a mystical forest with glowing mushrooms"
+    }
+  }
+}
 ```
 
 ### Polling for Results
 
-The image generation is asynchronous. After calling `generate`, poll `checkJob` every 3 seconds until status is `"success"`:
+The image generation is asynchronous. After calling `generate`, poll `checkJob` every 3 seconds until status is `"success"`, then retrieve the asset URLs:
 
 ```svelte
 <script lang="ts">
@@ -1407,10 +1467,11 @@ The image generation is asynchronous. After calling `generate`, poll `checkJob` 
   
   let prompt = $state('');
   let isGenerating = $state(false);
-  let assetIds = $state<string[]>([]);
+  let imageUrls = $state<string[]>([]);
   
   async function generateImage() {
     isGenerating = true;
+    imageUrls = [];
     
     try {
       const { jobId } = await client.action(api.images.generate, {
@@ -1420,6 +1481,7 @@ The image generation is asynchronous. After calling `generate`, poll `checkJob` 
       });
       
       // Poll for results
+      let assetIds: string[] = [];
       while (true) {
         await new Promise(resolve => setTimeout(resolve, 3000));
         
@@ -1432,6 +1494,15 @@ The image generation is asynchronous. After calling `generate`, poll `checkJob` 
           throw new Error(`Job ${result.status}`);
         }
       }
+      
+      // Retrieve asset URLs
+      const urls = await Promise.all(
+        assetIds.map(async (assetId) => {
+          const { url } = await client.action(api.images.getAssetUrl, { assetId });
+          return url;
+        })
+      );
+      imageUrls = urls;
     } finally {
       isGenerating = false;
     }
@@ -1443,8 +1514,8 @@ The image generation is asynchronous. After calling `generate`, poll `checkJob` 
   {isGenerating ? 'Generating...' : 'Generate Image'}
 </button>
 
-{#each assetIds as assetId}
-  <img src={`https://api.scenario.com/v1/assets/${assetId}`} alt="Generated" />
+{#each imageUrls as url}
+  <img src={url} alt="Generated" />
 {/each}
 ```
 
@@ -1569,10 +1640,11 @@ export const edit = action({
   let assetId = $state('');
   let editPrompt = $state('');
   let isEditing = $state(false);
-  let editedAssetIds = $state<string[]>([]);
+  let editedImageUrls = $state<string[]>([]);
   
   async function editImage() {
     isEditing = true;
+    editedImageUrls = [];
     
     try {
       const { jobId } = await client.action(api.images.edit, {
@@ -1582,6 +1654,7 @@ export const edit = action({
       });
       
       // Poll for results (reuse checkJob from generate)
+      let editedAssetIds: string[] = [];
       while (true) {
         await new Promise(resolve => setTimeout(resolve, 3000));
         
@@ -1594,6 +1667,15 @@ export const edit = action({
           throw new Error(`Job ${result.status}`);
         }
       }
+      
+      // Retrieve asset URLs
+      const urls = await Promise.all(
+        editedAssetIds.map(async (id) => {
+          const { url } = await client.action(api.images.getAssetUrl, { assetId: id });
+          return url;
+        })
+      );
+      editedImageUrls = urls;
     } finally {
       isEditing = false;
     }
@@ -1606,8 +1688,8 @@ export const edit = action({
   {isEditing ? 'Editing...' : 'Edit Image'}
 </button>
 
-{#each editedAssetIds as id}
-  <img src={`https://api.scenario.com/v1/assets/${id}`} alt="Edited" />
+{#each editedImageUrls as url}
+  <img src={url} alt="Edited" />
 {/each}
 ```
 
