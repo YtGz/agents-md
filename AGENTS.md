@@ -21,7 +21,7 @@ You also have access to:
 4. **Use proper validators and TypeScript types** in Convex backend functions
 5. **Use Bits UI for headless components** - fetch docs on demand when building UI
 6. **Always use [Conventional Commits](https://www.conventionalcommits.org/)** for all git commits
-7. **Always run `bun run format` and `bun run check`** before committing
+7. **Always run `npm run format` and `npm run check`** before committing
 8. **Always use the `$convex` alias** when importing from Convex in Svelte/SvelteKit files (e.g., `import { api } from '$convex/_generated/api'`)
 
 ---
@@ -37,7 +37,7 @@ When starting a new project, you will typically be in an empty folder containing
 Run the following command to scaffold a SvelteKit app with our standard configuration:
 
 ```bash
-bunx sv create . --template minimal --types ts --add eslint --add prettier --add vitest="usages:unit,component" --add tailwindcss="plugins:typography,forms" --add paraglide="languageTags:en,de+demo:no" --no-dir-check --install bun
+npx sv create . --template minimal --types ts --add eslint --add prettier --add vitest="usages:unit,component" --add tailwindcss="plugins:typography,forms" --add paraglide="languageTags:en,de+demo:no" --no-dir-check
 ```
 
 This sets up:
@@ -46,14 +46,14 @@ This sets up:
 - **Vitest** for unit and component testing
 - **Tailwind CSS** with typography and forms plugins
 - **Paraglide** for i18n (English and German)
-- **Bun** as the package manager
+- **npm** as the package manager
 
 ### Step 2: Add Convex and Bits UI
 
 Install Convex, the Svelte integration, and Bits UI (headless components):
 
 ```bash
-bun add convex convex-svelte bits-ui
+npm install convex convex-svelte bits-ui
 ```
 
 ### Step 3: Configure Convex Functions Directory
@@ -84,23 +84,7 @@ const config = {
 
 This allows importing from `$convex` instead of relative paths (e.g., `import { api } from '$convex/_generated/api'`).
 
-### Step 5: Configure Bun Runtime for Vite
-
-Update the `package.json` scripts to use Bun's runtime instead of Node.js for better performance:
-
-```json
-{
-  "scripts": {
-    "dev": "bun run --bun vite dev",
-    "build": "bun run --bun vite build",
-    "preview": "bun run --bun vite preview"
-  }
-}
-```
-
-**Note:** Only replace the `dev`, `build`, and `preview` scripts. Keep other scripts (like `check`, `lint`, `test`, etc.) unchanged.
-
-### Step 6: Configure Prettier
+### Step 5: Configure Prettier
 
 Update `.prettierrc` to use spaces instead of tabs and set the print width:
 
@@ -118,7 +102,7 @@ Add `AGENTS.md` to `.prettierignore` to prevent formatting issues with the docum
 AGENTS.md
 ```
 
-### Step 7: Set Initial Version
+### Step 6: Set Initial Version
 
 Update the `version` field in `package.json` to follow proper [Semantic Versioning](https://semver.org/):
 
@@ -130,17 +114,7 @@ Update the `version` field in `package.json` to follow proper [Semantic Versioni
 
 This sets the initial development version. Use `0.x.x` versions during initial development, then move to `1.0.0` for the first stable release.
 
-### Step 8: Update Dependencies
-
-Update all packages to their latest versions:
-
-```bash
-bun update --latest
-```
-
-This ensures you're starting with the most recent stable versions of all dependencies.
-
-### Step 9: Gather Project Requirements
+### Step 7: Gather Project Requirements
 
 **IMPORTANT:** Before proceeding, ask the user what they intend to build. Gather enough information to understand:
 - The purpose and core functionality of the application
@@ -149,7 +123,7 @@ This ensures you're starting with the most recent stable versions of all depende
 - Any specific technical requirements
 - **Whether the repository should be public or private**
 
-### Step 10: Create GitHub Repository
+### Step 8: Create GitHub Repository
 
 Based on the user's description, create a sophisticated project title and description. Then:
 
@@ -158,7 +132,7 @@ Based on the user's description, create a sophisticated project title and descri
 3. Initialize git in the project folder if not already done
 4. Add the remote origin
 
-### Step 11: Create README.md
+### Step 9: Create README.md
 
 Create a `README.md` file that includes:
 - Project title and description
@@ -167,7 +141,7 @@ Create a `README.md` file that includes:
 - Development commands
 - Project structure overview
 
-### Step 12: Add LICENSE.md (if missing)
+### Step 10: Add LICENSE.md (if missing)
 
 If no license file exists in the project, create a `LICENSE.md` file with the MIT-0 (MIT No Attribution) license:
 
@@ -192,14 +166,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Replace `<YEAR>` with the current year and `<COPYRIGHT HOLDER>` with the appropriate name (ask user if unclear).
 
-### Step 13: Initial Commit
+### Step 11: Initial Commit
 
 **Note:** This commit contains ONLY the project boilerplate - no application-specific code yet.
 
 First, run formatting (type checking requires Convex dev server, which will be started after this commit):
 
 ```bash
-bun run format
+npm run format
 ```
 
 Then create the first commit following the [Conventional Commits](https://www.conventionalcommits.org/) standard:
@@ -208,14 +182,14 @@ Then create the first commit following the [Conventional Commits](https://www.co
 git add .
 git commit -m "feat: initialize project with SvelteKit, Convex, and Tailwind CSS
 
-- Set up SvelteKit with TypeScript and Bun runtime
+- Set up SvelteKit with TypeScript
 - Configure Convex backend with convex-svelte integration
 - Add Tailwind CSS with typography and forms plugins
 - Configure ESLint, Prettier, and Vitest
 - Set up Paraglide for internationalization (en, de)"
 ```
 
-### Step 14: Instruct User and Wait
+### Step 12: Instruct User and Wait
 
 **CRITICAL:** After completing the setup, you MUST inform the user and WAIT for them to start the dev servers before writing any application code.
 
@@ -227,19 +201,19 @@ Tell the user:
 > 
 > **Tab 1 - Convex Dev Server (required for type generation):**
 > ```bash
-> bun run convex dev
+> npm run convex dev
 > ```
 > 
 > **Tab 2 - SvelteKit Dev Server:**
 > ```bash
-> bun run dev --host
+> npm run dev -- --host
 > ```
 > 
 > Let me know once both servers are running, and we'll start implementing the application.
 
 **Why this matters:**
-- `bun run convex dev` generates the `_generated/` folder with TypeScript types
-- Without these types, `bun run check` will fail
+- `npm run convex dev` generates the `_generated/` folder with TypeScript types
+- Without these types, `npm run check` will fail
 - Application code depends on these generated types
 
 **DO NOT proceed with application-specific code until the user confirms the dev servers are running.**
@@ -247,20 +221,18 @@ Tell the user:
 ### Bootstrap Workflow Summary
 
 ```
-1. bunx sv create . --template minimal --types ts --add eslint --add prettier --add vitest="usages:unit,component" --add tailwindcss="plugins:typography,forms" --add paraglide="languageTags:en,de+demo:no" --no-dir-check --install bun
-2. bun add convex convex-svelte bits-ui
+1. npx sv create . --template minimal --types ts --add eslint --add prettier --add vitest="usages:unit,component" --add tailwindcss="plugins:typography,forms" --add paraglide="languageTags:en,de+demo:no" --no-dir-check
+2. npm install convex convex-svelte bits-ui
 3. Create/update convex.json with { "functions": "src/convex/" }
 4. Add $convex alias to svelte.config.js
-5. Update package.json vite scripts to use "bun run --bun vite ..."
-6. Configure .prettierrc (useTabs: false, printWidth: 80)
-7. Set package.json version to "0.1.0"
-8. bun update --latest
-9. Ask user about project purpose and repo visibility
-10. Create GitHub repo via MCP
-11. Create README.md
-12. Add LICENSE.md (MIT-0) if missing
-13. bun run format && Initial commit (boilerplate only!)
-14. Tell user to start dev servers and WAIT for confirmation before writing app code
+5. Configure .prettierrc (useTabs: false, printWidth: 80)
+6. Set package.json version to "0.1.0"
+7. Ask user about project purpose and repo visibility
+8. Create GitHub repo via MCP
+9. Create README.md
+10. Add LICENSE.md (MIT-0) if missing
+11. npm run format && Initial commit (boilerplate only!)
+12. Tell user to start dev servers and WAIT for confirmation before writing app code
 ```
 
 ---
@@ -399,7 +371,7 @@ await mcp_convex_run({
 **Important:**
 - Does not tail - performs single fetch
 - Use cursor for pagination through history
-- Similar to `bunx convex logs` but returns structured data
+- Similar to `npx convex logs` but returns structured data
 
 ---
 
@@ -429,8 +401,8 @@ Remove environment variable.
 ### Installation
 
 ```bash
-bun install convex convex-svelte
-bunx convex init
+npm install convex convex-svelte
+npx convex init
 ```
 
 ### Core Patterns
@@ -1888,7 +1860,7 @@ export const edit = action({
 **Symptom:** TypeScript errors in Svelte files.
 
 **Solution:**
-1. Run `bunx convex dev` to generate types
+1. Run `npx convex dev` to generate types
 2. Import from `convex/_generated/api` and `convex/_generated/dataModel`
 3. Use `svelte-autofixer` to catch issues
 
@@ -1987,32 +1959,3 @@ v.literal("value") // "value"
 - **Fetch Bits UI docs on demand** - don't assume component APIs, always get latest from bits-ui.com/llms.txt
 
 This is your complete reference for working with Convex + Svelte + Bits UI projects.
-
----
-
-## Known Issues
-
-### Bun Lockfile Error on Windows
-
-**Symptom:** Error message "Failed to replace old lockfile with new lockfile on disk" when running Bun commands.
-
-**Cause:** Known Bun bug on Windows when the project is on a drive other than `C:`.
-
-**Solution:** Remove the lockfile and retry:
-```bash
-rm bun.lock
-bun install
-```
-
-### esbuild Error on Windows (bcrypt postinstall)
-
-**Symptom:** esbuild-related error during `bun install`, often related to bcrypt postinstall script (required by Convex).
-
-**Cause:** Corrupted cache from previous failed installations.
-
-**Solution:** Clear the caches and retry:
-```bash
-npx clear-npx-cache
-bun pm cache rm
-bun install
-```

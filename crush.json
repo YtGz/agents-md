@@ -12,8 +12,8 @@
         "allowed_tools": [
             "uv",
             "uvx",
-            "bun",
-            "bunx",
+            "npm",
+            "npx",
             "bash",
             "view",
             "ls",
@@ -37,7 +37,7 @@
         },
         "convex-mcp": {
             "type": "stdio",
-            "command": "bunx",
+            "command": "npx",
             "args": [
                 "convex@latest",
                 "mcp",
