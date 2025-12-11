@@ -1,0 +1,56 @@
+{
+    "$schema": "https://charm.land/crush.json",
+    "lsp": {
+        "typescript": {
+            "command": "typescript-language-server",
+            "args": [
+                "--stdio"
+            ]
+        }
+    },
+    "permissions": {
+        "allowed_tools": [
+            "uv",
+            "uvx",
+            "bun",
+            "bunx",
+            "bash",
+            "view",
+            "ls",
+            "grep",
+            "find",
+            "edit",
+            "multiedit",
+            "write",
+            "git",
+            "docker",
+            "ps"
+        ]
+    },
+    "mcp": {
+        "github": {
+            "type": "http",
+            "url": "https://api.githubcopilot.com/mcp/",
+            "headers": {
+                "Authorization": "Bearer $GH_PAT"
+            }
+        },
+        "convex-mcp": {
+            "type": "stdio",
+            "command": "bunx",
+            "args": [
+                "convex@latest",
+                "mcp",
+                "start"
+            ],
+            "timeout": 45
+        },
+        "svelte": {
+            "type": "http",
+            "url": "https://mcp.svelte.dev/mcp"
+        }
+    },
+    "options": {
+        "disable_metrics": true
+    }
+}
